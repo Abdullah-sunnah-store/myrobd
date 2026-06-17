@@ -258,7 +258,9 @@
 </slideshow-component>
 
 
-  <script src="{{ 'myro-theme-editor.js' | asset_url }}" defer="defer"></script>
+  {%- if request.design_mode -%}
+    <script src="{{ 'myro-theme-editor.js' | asset_url }}" defer="defer"></script>
+  {%- endif -%}
 
 
 {% schema %}
