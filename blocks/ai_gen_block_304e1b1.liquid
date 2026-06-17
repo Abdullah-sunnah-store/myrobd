@@ -1,0 +1,251 @@
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+
+  .ai-dynamic-menu-{{ ai_gen_id }} li a {
+    position:relative;
+    padding-top: {{ block.settings.padding_top }}px;
+    padding-bottom: {{ block.settings.padding_bottom }}px;
+  }
+
+  .ai-dynamic-menu-{{ ai_gen_id }} li:hover a:after,
+  .ai-dynamic-menu-{{ ai_gen_id }} li a.is-active::after
+  {
+    width:100%;
+  }
+  .ai-dynamic-menu-{{ ai_gen_id }} li a.is-active{
+    color: #f23086;
+    pointer-events: none;
+  }
+  .ai-dynamic-menu-{{ ai_gen_id }} li a:after
+  {
+    background-color: #f23086;
+    bottom: 0px;
+    content: "";
+    height: 2px;
+    left: 0;
+    position: absolute;
+    transition: width .2s ease-in-out;
+    width: 0;
+  }
+
+  .ai-dynamic-menu-{{ ai_gen_id }} {
+    display: block;
+    width: 100%;
+    background-color: {{ block.settings.background_color }};
+  }
+
+  .ai-dynamic-menu__container-{{ ai_gen_id }} {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .ai-dynamic-menu__container-{{ ai_gen_id }}::-webkit-scrollbar {
+    display: none;
+  }
+
+  .ai-dynamic-menu__list-{{ ai_gen_id }} {
+    display: flex;
+    flex-direction: row;
+    gap:20px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    flex-wrap:wrap;
+    justify-content:center;
+  }
+  @media screen and (min-width: 1250px){
+    .ai-dynamic-menu__list-{{ ai_gen_id }} {
+      gap: {{ block.settings.gap_desktop }}px;
+    }
+    .ai-dynamic-menu__link-{{ ai_gen_id }}{
+      font-size: {{ block.settings.font_size }}px;
+    }
+  }
+  .ai-dynamic-menu__item-{{ ai_gen_id }} {
+    flex-shrink: 0;
+  }
+
+  .ai-dynamic-menu__link-{{ ai_gen_id }} {
+    display: inline-block;
+    color: {{ block.settings.text_color }};
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: {{ block.settings.font_weight }};
+    letter-spacing: {{ block.settings.letter_spacing }}px;
+    transition: color 0.3s ease;
+  }
+
+
+  .ai-dynamic-menu__link-{{ ai_gen_id }}:hover {
+    color: {{ block.settings.hover_text_color }};
+  }
+
+  @media screen and (max-width: 749px) {
+    .ai-dynamic-menu__list-{{ ai_gen_id }} {
+      gap: {{ block.settings.gap_mobile }}px;
+    }
+  }
+{% endstyle %}
+
+<dynamic-menu-{{ ai_gen_id }} class="ai-dynamic-menu-{{ ai_gen_id }}" {{ block.shopify_attributes }}>
+  <div class="ai-dynamic-menu__container-{{ ai_gen_id }}">
+    {% if block.settings.main_menu != blank %}
+      <ul class="ai-dynamic-menu__list-{{ ai_gen_id }}">
+        {% for link in linklists[block.settings.main_menu].links %}
+          <li class="ai-dynamic-menu__item-{{ ai_gen_id }}">
+            <a href="{{ link.url }}" 
+              class="ai-dynamic-menu__link-{{ ai_gen_id }}{% if link.active %} is-active{% endif %}"
+              {% if link.active %}aria-current="page"{% endif %}>
+              {{ link.title }}
+            </a>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <div style="padding: 20px; text-align: center; color: {{ block.settings.text_color }}; opacity: 0.6;">
+        Select a menu from the block settings
+      </div>
+    {% endif %}
+  </div>
+</dynamic-menu-{{ ai_gen_id }}>
+
+
+{% schema %}
+{
+  "name": "Full-width dynamic menu",
+  "tag": null,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Menu"
+    },
+    {
+      "type": "link_list",
+      "id": "main_menu",
+      "label": "Menu",
+      "default": "main-menu"
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "hover_text_color",
+      "label": "Hover text",
+      "default": "#f23086"
+    },
+    {
+      "type": "header",
+      "content": "Typography"
+    },
+    {
+      "type": "range",
+      "id": "font_size",
+      "min": 12,
+      "max": 32,
+      "step": 1,
+      "unit": "px",
+      "label": "Font size",
+      "default": 16
+    },
+    {
+      "type": "select",
+      "id": "font_weight",
+      "label": "Font weight",
+      "options": [
+        {
+          "value": "300",
+          "label": "Light"
+        },
+        {
+          "value": "400",
+          "label": "Normal"
+        },
+        {
+          "value": "700",
+          "label": "Bold"
+        }
+      ],
+      "default": "400"
+    },
+    {
+      "type": "range",
+      "id": "letter_spacing",
+      "min": 0,
+      "max": 5,
+      "step": 0.5,
+      "unit": "px",
+      "label": "Letter spacing",
+      "default": 0
+    },
+    {
+      "type": "header",
+      "content": "Spacing"
+    },
+    {
+      "type": "range",
+      "id": "gap_desktop",
+      "min": 10,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "label": "Gap on desktop",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "gap_mobile",
+      "min": 10,
+      "max": 60,
+      "step": 5,
+      "unit": "px",
+      "label": "Gap on mobile",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "label": "Top padding",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "label": "Bottom padding",
+      "default": 20
+    }
+  ],
+  "presets": [
+    {
+      "name": "Full-width dynamic menu"
+    }
+  ]
+}
+{% endschema %}

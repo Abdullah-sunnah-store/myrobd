@@ -1,0 +1,437 @@
+<footer class="myro-footer">
+
+<div class="footer-main">
+<div class="footer-grid">
+
+<!-- BRAND -->
+<div class="footer-brand">
+
+{% if section.settings.logo %}
+<img 
+src="{{ section.settings.logo | image_url: width: 200 }}" 
+alt="logo"
+class="footer-logo">
+{% endif %}
+
+<h2 class="footer-headline">
+{{ section.settings.headline }}
+</h2>
+
+<div class="footer-desc">
+{{ section.settings.description }}
+</div>
+
+</div>
+
+
+<!-- COMPANY MENU -->
+<div class="footer-menu">
+<h3 class="footer-title footer-toggle">
+  COMPANY
+  <span class="footer-arrow"></span>
+</h3>
+
+<ul>
+{% for link in linklists[section.settings.company_menu].links %}
+<li>
+<a href="{{ link.url }}">{{ link.title }}</a>
+</li>
+{% endfor %}
+</ul>
+
+</div>
+
+
+<!-- QUICK HELP -->
+<div class="footer-menu">
+<h3 class="footer-title footer-toggle">
+  QUICK HELP
+  <span class="footer-arrow"></span>
+</h3>
+
+<ul>
+{% for link in linklists[section.settings.help_menu].links %}
+<li>
+<a href="{{ link.url }}">{{ link.title }}</a>
+</li>
+{% endfor %}
+</ul>
+
+</div>
+
+
+<!-- DBID -->
+<div class="footer-db">
+<p>{{ section.settings.dbid }}</p>
+</div>
+
+
+</div>
+</div>
+
+
+<!-- COPYRIGHT BAR -->
+<div class="footer-bottom">
+
+<div class="footer-bottom-inner">
+
+<div class="footer-social">
+
+{% if section.settings.facebook %}
+<a href="{{ section.settings.facebook }}" target="_blank">
+<svg viewBox="0 0 24 24" width="20">
+<path fill="white" d="M22 12a10 10 0 1 0-11.5 9.9v-7h-2v-3h2v-2.3c0-2 1.2-3.1 3-3.1.9 0 1.8.2 1.8.2v2h-1c-1 0-1.3.6-1.3 1.2V12h2.3l-.4 3H13v7A10 10 0 0 0 22 12"/>
+</svg>
+</a>
+{% endif %}
+
+{% if section.settings.instagram %}
+<a href="{{ section.settings.instagram }}" target="_blank">
+<svg viewBox="0 0 24 24" width="20">
+<path fill="white" d="M7 2C4.2 2 2 4.2 2 7v10c0 2.8 2.2 5 5 5h10c2.8 
+0 5-2.2 5-5V7c0-2.8-2.2-5-5-5H7zm10 
+2c1.7 0 3 1.3 3 3v10c0 
+1.7-1.3 3-3 3H7c-1.7 
+0-3-1.3-3-3V7c0-1.7 
+1.3-3 3-3h10zm-5 
+3a5 5 0 1 0 0 10 5 5 
+0 0 0 0-10zm0 
+2a3 3 0 1 1 0 6 3 
+3 0 0 1 0-6zm4.5-2.3a1.2 
+1.2 0 1 0 0 2.4 1.2 
+1.2 0 0 0 0-2.4z"/>
+</svg>
+</a>
+{% endif %}
+
+</div>
+
+<div class="footer-copy">
+© {{ 'now' | date: "%Y" }} {{ section.settings.copyright }}
+</div>
+
+</div>
+
+</div>
+
+</footer>
+
+
+
+<style>
+
+.myro-footer{
+background:#FFFFFF;
+color:#fff;
+font-family:inherit;
+}
+
+.footer-main{
+padding:60px 40px;
+max-width:1300px;
+margin:auto;
+}
+
+.footer-grid{
+display:grid;
+grid-template-columns:2fr 1fr 1fr 1fr;
+gap:40px;
+}
+
+.footer-logo{
+max-width:180px;
+margin-bottom:20px;
+}
+
+.footer-headline{
+font-weight: bold;    
+color:#000000;
+font-size:18px;
+margin-bottom:15px;
+}
+
+.footer-desc{
+font-weight: 400;        
+font-size:14px;
+line-height:1.7;
+color:#000000
+}
+
+.footer-desc p{
+font-weight: normal;
+margin:0;
+}
+
+.footer-title{
+font-weight: bold;    
+color:#ff2e93;
+margin-bottom:15px;
+font-size:16px;
+}
+
+.footer-menu ul{
+list-style:none;
+padding:0;
+}
+
+.footer-menu li{
+margin-bottom:10px;
+}
+
+.footer-menu a{
+font-weight: 300;    
+color:#000000;
+text-decoration:none;
+position:relative;
+}
+
+.footer-menu a::after{
+content:"";
+position:absolute;
+left:0;
+bottom:-3px;
+width:0%;
+height:2px;
+background:#ff2e93;
+transition:0.3s;
+}
+
+.footer-menu a:hover{
+color:#ff2e93;
+}
+
+.footer-menu a:hover::after{
+width:100%;
+}
+
+.footer-db{
+text-align:right;
+font-weight:600;
+color:#000000
+}
+
+.footer-email{
+margin-top:10px;
+}
+
+.footer-bottom{
+background:#ff2e93;
+padding:15px 40px;
+}
+
+.footer-bottom-inner{
+max-width:1300px;
+margin:auto;
+display:flex;
+justify-content:space-between;
+align-items:center;
+}
+
+.footer-social a{
+margin-right:15px;
+display:inline-block;
+}
+
+.footer-copy{
+font-size:14px;
+}
+
+/* MOBILE */
+
+@media (max-width: 900px) {
+
+.myro-footer{
+text-align:left;
+}
+
+.footer-main{
+padding:40px 15px;
+}
+
+.footer-grid{
+grid-template-columns:1fr;
+gap:25px;
+text-align:left;
+}
+
+.footer-brand,
+.footer-menu,
+.footer-db{
+text-align:left;
+}
+
+.footer-db{
+text-align:left;
+}
+
+.footer-bottom{
+padding:15px;
+}
+
+.footer-bottom-inner{
+flex-direction:column;
+align-items:flex-start;
+gap:10px;
+text-align:left;
+}
+
+.footer-social{
+margin-bottom:5px;
+}
+
+/* MOBILE FOOTER ACCORDION */
+
+@media (max-width:900px){
+
+.footer-title{
+display:flex;
+justify-content:space-between;
+align-items:center;
+cursor:pointer;
+}
+
+/* arrow hidden on desktop */
+
+.footer-arrow{
+display:none;
+width:10px;
+height:10px;
+border-right:3px solid #000;
+border-bottom:3px solid #000;
+transform:rotate(45deg);
+transition:0.3s;
+}
+
+/* MOBILE */
+
+@media (max-width:768px){
+
+.footer-title{
+display:flex;
+justify-content:space-between;
+align-items:center;
+cursor:pointer;
+}
+
+/* show arrow only mobile */
+
+.footer-arrow{
+display:block;
+}
+
+/* hide menu */
+
+.footer-menu ul{
+display:none;
+}
+
+/* open menu */
+
+.footer-menu.active ul{
+display:block;
+}
+
+/* rotate arrow */
+
+.footer-menu.active .footer-arrow{
+transform:rotate(-135deg);
+}
+
+}
+}
+
+</style>
+
+<script>
+
+document.addEventListener("DOMContentLoaded", function(){
+
+if(window.innerWidth <= 768){
+
+document.querySelectorAll(".footer-toggle").forEach(function(toggle){
+
+toggle.addEventListener("click", function(){
+
+this.parentElement.classList.toggle("active");
+
+});
+
+});
+
+}
+
+});
+
+</script>
+
+{% schema %}
+{
+"name":"Custom Footer",
+"settings":[
+
+{
+"type":"image_picker",
+"id":"logo",
+"label":"Footer Logo"
+},
+
+{
+"type":"text",
+"id":"headline",
+"label":"Headline",
+"default":"Myro: Stylish & Comfortable Women’s Footwear in Bangladesh"
+},
+
+{
+"type":"richtext",
+"id":"description",
+"label":"Description",
+"default":"<p>Myro is a Bangladesh-based women’s footwear brand offering stylish and comfortable shoes designed for modern women.</p>"
+},
+
+{
+"type":"link_list",
+"id":"company_menu",
+"label":"Company Menu"
+},
+
+{
+"type":"link_list",
+"id":"help_menu",
+"label":"Quick Help Menu"
+},
+
+{
+"type":"text",
+"id":"dbid",
+"label":"DBID Text",
+"default":"DBID ID : xxxxx"
+},
+
+{
+"type":"url",
+"id":"facebook",
+"label":"Facebook Link"
+},
+
+{
+"type":"url",
+"id":"instagram",
+"label":"Instagram Link"
+},
+
+{
+"type":"text",
+"id":"copyright",
+"label":"Copyright Text",
+"default":"Myro Bangladesh"
+}
+
+],
+"presets":[
+{
+"name":"Custom Footer"
+}
+]
+}
+{% endschema %}

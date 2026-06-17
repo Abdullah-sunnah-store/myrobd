@@ -1,0 +1,767 @@
+{% comment %}
+  Responsive Banner Slider Section for Shopify Horizon Theme
+  - Separate desktop/mobile image settings
+  - Mobile-safe content visibility
+  - Full-width slider with autoplay, dots, arrows
+{% endcomment %}
+
+<style>
+  .rbs-section {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    background: #000;
+  }
+
+  /* Slider wrapper */
+  .rbs-slider {
+    display: flex;
+    transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    will-change: transform;
+  }
+
+  /* Individual slide */
+  .rbs-slide {
+    position: relative;
+    min-width: 100%;
+    overflow: hidden;
+  }
+
+  /* ─── Image layers ──────────────────────────────── */
+  .rbs-slide__img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: var(--desktop-focal, center center);
+  }
+
+  /* Desktop image visible by default; mobile hidden */
+  .rbs-slide__img--mobile { display: none; }
+
+  /* Slide height via aspect-ratio */
+  .rbs-slide__media {
+    position: relative;
+    width: 100%;
+    aspect-ratio: var(--desktop-ratio, 21/9);
+    overflow: hidden;
+  }
+
+  /* Overlay */
+  .rbs-slide__overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to bottom,
+      rgba(0,0,0,0) 30%,
+      rgba(0,0,0,0.55) 100%
+    );
+    pointer-events: none;
+  }
+
+  .rbs-slide__overlay--left {
+    background: linear-gradient(
+      to right,
+      rgba(0,0,0,0.60) 0%,
+      rgba(0,0,0,0) 55%
+    );
+  }
+
+  .rbs-slide__overlay--right {
+    background: linear-gradient(
+      to left,
+      rgba(0,0,0,0.60) 0%,
+      rgba(0,0,0,0) 55%
+    );
+  }
+
+  .rbs-slide__overlay--center {
+    background: radial-gradient(
+      ellipse at center,
+      rgba(0,0,0,0.55) 0%,
+      rgba(0,0,0,0) 70%
+    );
+  }
+
+  /* ─── Content box ──────────────────────────────── */
+  .rbs-slide__content {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: var(--content-valign, center);
+    padding: 40px 60px;
+    box-sizing: border-box;
+    z-index: 2;
+  }
+
+  .rbs-slide__content--left   { align-items: flex-start; text-align: left; }
+  .rbs-slide__content--center { align-items: center;     text-align: center; }
+  .rbs-slide__content--right  { align-items: flex-end;   text-align: right; }
+
+  .rbs-slide__eyebrow {
+    font-family: var(--font-body-family, sans-serif);
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #fff;
+    opacity: 0.85;
+    margin: 0 0 10px;
+  }
+
+  .rbs-slide__heading {
+    font-family: var(--font-heading-family, sans-serif);
+    font-size: clamp(1.6rem, 4vw, 3.2rem);
+    font-weight: 800;
+    line-height: 1.1;
+    color: #fff;
+    margin: 0 0 14px;
+    max-width: 650px;
+  }
+
+  .rbs-slide__subtext {
+    font-family: var(--font-body-family, sans-serif);
+    font-size: clamp(0.9rem, 1.5vw, 1.1rem);
+    line-height: 1.6;
+    color: rgba(255,255,255,0.88);
+    margin: 0 0 28px;
+    max-width: 500px;
+  }
+
+  .rbs-slide__buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .rbs-slide__btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 13px 28px;
+    border-radius: 4px;
+    font-family: var(--font-body-family, sans-serif);
+    font-size: 0.9rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    text-decoration: none;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+    white-space: nowrap;
+  }
+
+  .rbs-slide__btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+    opacity: 0.92;
+  }
+
+  .rbs-slide__btn--primary {
+    background: var(--color-button, #fff);
+    color: var(--color-button-text, #000);
+    border: 2px solid transparent;
+  }
+
+  .rbs-slide__btn--secondary {
+    background: transparent;
+    color: #fff;
+    border: 2px solid rgba(255,255,255,0.75);
+  }
+
+  /* ─── Navigation arrows ─────────────────────────── */
+  .rbs-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.55);
+    background: rgba(0,0,0,0.35);
+    backdrop-filter: blur(4px);
+    color: #fff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s, border-color 0.2s;
+  }
+
+  .rbs-arrow:hover {
+    background: rgba(0,0,0,0.65);
+    border-color: #fff;
+  }
+
+  .rbs-arrow--prev { left: 20px; }
+  .rbs-arrow--next { right: 20px; }
+
+  .rbs-arrow svg {
+    width: 20px;
+    height: 20px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  /* ─── Dots ──────────────────────────────────────── */
+  .rbs-dots {
+    position: absolute;
+    bottom: 18px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+    display: flex;
+    gap: 8px;
+  }
+
+  .rbs-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.45);
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    transition: background 0.25s, transform 0.25s;
+  }
+
+  .rbs-dot.is-active {
+    background: #fff;
+    transform: scale(1.35);
+  }
+
+  /* ─── Autoplay progress bar ─────────────────────── */
+  .rbs-progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    background: rgba(255,255,255,0.7);
+    width: 0;
+    z-index: 10;
+    transition: none;
+  }
+
+  .rbs-progress.is-running {
+    transition: width linear;
+  }
+
+  /* ─── MOBILE breakpoint ─────────────────────────── */
+  @media (max-width: 849px) {
+    .rbs-slide__media {
+      aspect-ratio: var(--mobile-ratio, 3/4);
+    }
+
+    /* Swap images */
+    .rbs-slide__img--desktop { display: none; }
+    .rbs-slide__img--mobile  { display: block; object-position: var(--mobile-focal, center top); }
+
+    /* Fallback: if no mobile image, show desktop with different focal */
+    .rbs-slide:not([data-has-mobile-img]) .rbs-slide__img--desktop {
+      display: block;
+      object-position: var(--mobile-focal, center top);
+    }
+
+    .rbs-slide__content {
+      padding: 24px 22px;
+      justify-content: flex-end;
+    }
+
+    .rbs-slide__heading {
+      font-size: clamp(1.3rem, 6vw, 2rem);
+      max-width: 100%;
+    }
+
+    .rbs-slide__subtext {
+      font-size: 0.88rem;
+      max-width: 100%;
+    }
+
+    .rbs-slide__btn {
+      padding: 11px 20px;
+      font-size: 0.82rem;
+    }
+
+    .rbs-arrow { display: none; }
+
+    .rbs-dots { bottom: 14px; }
+  }
+</style>
+
+<section
+  class="rbs-section"
+  id="rbs-{{ section.id }}"
+  data-section-id="{{ section.id }}"
+  data-autoplay="{{ section.settings.autoplay }}"
+  data-speed="{{ section.settings.autoplay_speed | default: 5000 }}"
+>
+
+  <div class="rbs-slider" id="rbs-track-{{ section.id }}">
+
+    {% for block in section.blocks %}
+      {% assign desktop_image = block.settings.desktop_image %}
+      {% assign mobile_image  = block.settings.mobile_image %}
+      {% assign has_mobile    = false %}
+      {% if mobile_image != blank %}{% assign has_mobile = true %}{% endif %}
+
+      <div
+        class="rbs-slide"
+        {{ block.shopify_attributes }}
+        {% if has_mobile %}data-has-mobile-img="true"{% endif %}
+        style="
+          --desktop-focal: {{ block.settings.desktop_focal | default: 'center center' }};
+          --mobile-focal:  {{ block.settings.mobile_focal  | default: 'center top' }};
+          --desktop-ratio: {{ block.settings.desktop_ratio | default: '21/9' }};
+          --mobile-ratio:  {{ block.settings.mobile_ratio  | default: '3/4' }};
+          --content-valign: {{ block.settings.content_valign | default: 'center' }};
+        "
+      >
+
+        <!-- Image media wrapper -->
+        <div class="rbs-slide__media">
+
+          {% if desktop_image != blank %}
+            <img
+              class="rbs-slide__img rbs-slide__img--desktop"
+              src="{{ desktop_image | image_url: width: 2000 }}"
+              srcset="
+                {{ desktop_image | image_url: width: 800  }} 800w,
+                {{ desktop_image | image_url: width: 1200 }} 1200w,
+                {{ desktop_image | image_url: width: 1600 }} 1600w,
+                {{ desktop_image | image_url: width: 2000 }} 2000w
+              "
+              sizes="100vw"
+              alt="{{ block.settings.heading | escape }}"
+              {% if forloop.first %}loading="eager"{% else %}loading="lazy"{% endif %}
+              width="{{ desktop_image.width }}"
+              height="{{ desktop_image.height }}"
+            >
+          {% else %}
+            {{ 'lifestyle-1' | placeholder_svg_tag: 'rbs-slide__img rbs-slide__img--desktop' }}
+          {% endif %}
+
+          {% if has_mobile %}
+            <img
+              class="rbs-slide__img rbs-slide__img--mobile"
+              src="{{ mobile_image | image_url: width: 900 }}"
+              srcset="
+                {{ mobile_image | image_url: width: 400 }} 400w,
+                {{ mobile_image | image_url: width: 600 }} 600w,
+                {{ mobile_image | image_url: width: 900 }} 900w
+              "
+              sizes="100vw"
+              alt="{{ block.settings.heading | escape }}"
+              {% if forloop.first %}loading="eager"{% else %}loading="lazy"{% endif %}
+              width="{{ mobile_image.width }}"
+              height="{{ mobile_image.height }}"
+            >
+          {% endif %}
+
+          <!-- Overlay -->
+          <div class="rbs-slide__overlay rbs-slide__overlay--{{ block.settings.overlay_direction | default: 'bottom' }}"></div>
+
+        </div>
+        <!-- /.rbs-slide__media -->
+
+        <!-- Content -->
+        <div class="rbs-slide__content rbs-slide__content--{{ block.settings.content_align | default: 'left' }}">
+
+          {% if block.settings.eyebrow != blank %}
+            <p class="rbs-slide__eyebrow">{{ block.settings.eyebrow }}</p>
+          {% endif %}
+
+          {% if block.settings.heading != blank %}
+            <h2 class="rbs-slide__heading">{{ block.settings.heading }}</h2>
+          {% endif %}
+
+          {% if block.settings.subtext != blank %}
+            <p class="rbs-slide__subtext">{{ block.settings.subtext }}</p>
+          {% endif %}
+
+          {% if block.settings.btn1_label != blank or block.settings.btn2_label != blank %}
+            <div class="rbs-slide__buttons">
+              {% if block.settings.btn1_label != blank %}
+                <a href="{{ block.settings.btn1_url }}" class="rbs-slide__btn rbs-slide__btn--primary">
+                  {{ block.settings.btn1_label }}
+                </a>
+              {% endif %}
+              {% if block.settings.btn2_label != blank %}
+                <a href="{{ block.settings.btn2_url }}" class="rbs-slide__btn rbs-slide__btn--secondary">
+                  {{ block.settings.btn2_label }}
+                </a>
+              {% endif %}
+            </div>
+          {% endif %}
+
+        </div>
+        <!-- /.rbs-slide__content -->
+
+      </div>
+      <!-- /.rbs-slide -->
+    {% endfor %}
+
+  </div>
+  <!-- /.rbs-slider -->
+
+  <!-- Arrows -->
+  {% if section.settings.show_arrows and section.blocks.size > 1 %}
+    <button class="rbs-arrow rbs-arrow--prev" aria-label="Previous slide">
+      <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+    <button class="rbs-arrow rbs-arrow--next" aria-label="Next slide">
+      <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+    </button>
+  {% endif %}
+
+  <!-- Dots -->
+  {% if section.settings.show_dots and section.blocks.size > 1 %}
+    <div class="rbs-dots" role="tablist" aria-label="Slider navigation">
+      {% for block in section.blocks %}
+        <button
+          class="rbs-dot {% if forloop.first %}is-active{% endif %}"
+          data-index="{{ forloop.index0 }}"
+          role="tab"
+          aria-selected="{% if forloop.first %}true{% else %}false{% endif %}"
+          aria-label="Go to slide {{ forloop.index }}"
+        ></button>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <!-- Autoplay progress bar -->
+  {% if section.settings.autoplay %}
+    <div class="rbs-progress" id="rbs-progress-{{ section.id }}"></div>
+  {% endif %}
+
+</section>
+
+<script>
+(function() {
+  var sectionId  = {{ section.id | json }};
+  var section    = document.getElementById('rbs-' + sectionId);
+  if (!section) return;
+
+  var track      = document.getElementById('rbs-track-' + sectionId);
+  var slides     = track.querySelectorAll('.rbs-slide');
+  var dots       = section.querySelectorAll('.rbs-dot');
+  var prevBtn    = section.querySelector('.rbs-arrow--prev');
+  var nextBtn    = section.querySelector('.rbs-arrow--next');
+  var progressBar = section.querySelector('.rbs-progress');
+  var total      = slides.length;
+  var current    = 0;
+  var autoplay   = section.dataset.autoplay === 'true';
+  var speed      = parseInt(section.dataset.speed, 10) || 5000;
+  var timer      = null;
+
+  if (total <= 1) return;
+
+  function goTo(index) {
+    current = (index + total) % total;
+    track.style.transform = 'translateX(-' + (current * 100) + '%)';
+    dots.forEach(function(d, i) {
+      d.classList.toggle('is-active', i === current);
+      d.setAttribute('aria-selected', i === current ? 'true' : 'false');
+    });
+    if (autoplay) resetProgress();
+  }
+
+  function resetProgress() {
+    if (!progressBar) return;
+    progressBar.classList.remove('is-running');
+    progressBar.style.width = '0';
+    // Force reflow
+    void progressBar.offsetWidth;
+    progressBar.classList.add('is-running');
+    progressBar.style.transitionDuration = speed + 'ms';
+    progressBar.style.width = '100%';
+  }
+
+  function startAutoplay() {
+    clearInterval(timer);
+    resetProgress();
+    timer = setInterval(function() { goTo(current + 1); }, speed);
+  }
+
+  function stopAutoplay() {
+    clearInterval(timer);
+    if (progressBar) {
+      progressBar.classList.remove('is-running');
+      progressBar.style.width = '0';
+    }
+  }
+
+  if (prevBtn) prevBtn.addEventListener('click', function() { stopAutoplay(); goTo(current - 1); if (autoplay) startAutoplay(); });
+  if (nextBtn) nextBtn.addEventListener('click', function() { stopAutoplay(); goTo(current + 1); if (autoplay) startAutoplay(); });
+
+  dots.forEach(function(dot) {
+    dot.addEventListener('click', function() {
+      stopAutoplay();
+      goTo(parseInt(this.dataset.index, 10));
+      if (autoplay) startAutoplay();
+    });
+  });
+
+  // Touch / swipe
+  var touchStartX = 0;
+  section.addEventListener('touchstart', function(e) { touchStartX = e.touches[0].clientX; }, { passive: true });
+  section.addEventListener('touchend', function(e) {
+    var diff = touchStartX - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 40) {
+      stopAutoplay();
+      goTo(diff > 0 ? current + 1 : current - 1);
+      if (autoplay) startAutoplay();
+    }
+  });
+
+  // Pause on hover (desktop)
+  section.addEventListener('mouseenter', function() { if (autoplay) stopAutoplay(); });
+  section.addEventListener('mouseleave', function() { if (autoplay) startAutoplay(); });
+
+  // Reduce motion
+  var prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (prefersReduced) track.style.transition = 'none';
+
+  if (autoplay) startAutoplay();
+})();
+</script>
+
+{% schema %}
+{
+  "name": "Responsive Banner Slider",
+  "class": "rbs-section-wrapper",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Slider Controls"
+    },
+    {
+      "type": "checkbox",
+      "id": "autoplay",
+      "label": "Enable autoplay",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "autoplay_speed",
+      "label": "Autoplay speed (ms)",
+      "min": 2000,
+      "max": 5000,
+      "step": 500,
+      "default": 5000
+    },
+    {
+      "type": "checkbox",
+      "id": "show_arrows",
+      "label": "Show navigation arrows",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_dots",
+      "label": "Show navigation dots",
+      "default": true
+    }
+  ],
+  "blocks": [
+    {
+      "type": "slide",
+      "name": "Slide",
+      "settings": [
+        {
+          "type": "header",
+          "content": "Desktop Image"
+        },
+        {
+          "type": "image_picker",
+          "id": "desktop_image",
+          "label": "Desktop image",
+          "info": "Recommended: 2000×900px (wide landscape)"
+        },
+        {
+          "type": "select",
+          "id": "desktop_focal",
+          "label": "Desktop image focal point",
+          "options": [
+            { "value": "left top",    "label": "Left top" },
+            { "value": "center top",  "label": "Center top" },
+            { "value": "right top",   "label": "Right top" },
+            { "value": "left center", "label": "Left center" },
+            { "value": "center center","label": "Center" },
+            { "value": "right center","label": "Right center" },
+            { "value": "left bottom", "label": "Left bottom" },
+            { "value": "center bottom","label": "Center bottom" },
+            { "value": "right bottom","label": "Right bottom" }
+          ],
+          "default": "center center"
+        },
+        {
+          "type": "select",
+          "id": "desktop_ratio",
+          "label": "Desktop aspect ratio",
+          "options": [
+            { "value": "21/9",  "label": "Ultra-wide (21:9)" },
+            { "value": "16/6",  "label": "Cinematic (16:6)" },
+            { "value": "16/7",  "label": "Wide (16:7)" },
+            { "value": "16/9",  "label": "Standard (16:9)" },
+            { "value": "4/3",   "label": "Classic (4:3)" }
+          ],
+          "default": "21/9"
+        },
+        {
+          "type": "header",
+          "content": "Mobile Image"
+        },
+        {
+          "type": "image_picker",
+          "id": "mobile_image",
+          "label": "Mobile image (optional)",
+          "info": "Recommended: 900×1200px (portrait). If left empty, desktop image is used with mobile focal point."
+        },
+        {
+          "type": "select",
+          "id": "mobile_focal",
+          "label": "Mobile focal point (used when no mobile image)",
+          "options": [
+            { "value": "left top",    "label": "Left top" },
+            { "value": "center top",  "label": "Center top" },
+            { "value": "right top",   "label": "Right top" },
+            { "value": "center center","label": "Center" },
+            { "value": "center bottom","label": "Center bottom" }
+          ],
+          "default": "center top"
+        },
+        {
+          "type": "select",
+          "id": "mobile_ratio",
+          "label": "Mobile aspect ratio",
+          "options": [
+            { "value": "1/1",   "label": "Square (1:1)" },
+            { "value": "4/5",   "label": "Portrait (4:5)" },
+            { "value": "3/4",   "label": "Tall portrait (3:4)" },
+            { "value": "9/16",  "label": "Full portrait (9:16)" },
+            { "value": "16/9",  "label": "Landscape (16:9)" }
+          ],
+          "default": "3/4"
+        },
+        {
+          "type": "header",
+          "content": "Slide Content"
+        },
+        {
+          "type": "text",
+          "id": "eyebrow",
+          "label": "Eyebrow label",
+          "placeholder": "New collection"
+        },
+        {
+          "type": "textarea",
+          "id": "heading",
+          "label": "Heading",
+          "default": "Big bold headline"
+        },
+        {
+          "type": "textarea",
+          "id": "subtext",
+          "label": "Subtext / offer detail",
+          "placeholder": "Up to 40% off — limited time only"
+        },
+        {
+          "type": "header",
+          "content": "Buttons"
+        },
+        {
+          "type": "text",
+          "id": "btn1_label",
+          "label": "Primary button label",
+          "default": "Shop Now"
+        },
+        {
+          "type": "url",
+          "id": "btn1_url",
+          "label": "Primary button link"
+        },
+        {
+          "type": "text",
+          "id": "btn2_label",
+          "label": "Secondary button label",
+          "placeholder": "Learn More"
+        },
+        {
+          "type": "url",
+          "id": "btn2_url",
+          "label": "Secondary button link"
+        },
+        {
+          "type": "header",
+          "content": "Layout"
+        },
+        {
+          "type": "select",
+          "id": "content_align",
+          "label": "Content alignment",
+          "options": [
+            { "value": "left",   "label": "Left" },
+            { "value": "center", "label": "Center" },
+            { "value": "right",  "label": "Right" }
+          ],
+          "default": "left"
+        },
+        {
+          "type": "select",
+          "id": "content_valign",
+          "label": "Content vertical position",
+          "options": [
+            { "value": "flex-start", "label": "Top" },
+            { "value": "center",     "label": "Middle" },
+            { "value": "flex-end",   "label": "Bottom" }
+          ],
+          "default": "center"
+        },
+        {
+          "type": "select",
+          "id": "overlay_direction",
+          "label": "Overlay gradient direction",
+          "options": [
+            { "value": "bottom", "label": "Bottom (text at bottom)" },
+            { "value": "left",   "label": "Left (text on left)" },
+            { "value": "right",  "label": "Right (text on right)" },
+            { "value": "center", "label": "Center vignette" }
+          ],
+          "default": "left"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Responsive Banner Slider",
+      "blocks": [
+        {
+          "type": "slide",
+          "settings": {
+            "heading": "Summer Sale — Up to 50% Off",
+            "subtext": "Shop the season's best deals before they're gone.",
+            "btn1_label": "Shop Now",
+            "eyebrow": "Limited Time",
+            "content_align": "left"
+          }
+        },
+        {
+          "type": "slide",
+          "settings": {
+            "heading": "New Arrivals Just Dropped",
+            "subtext": "Fresh styles for every occasion.",
+            "btn1_label": "Explore Collection",
+            "content_align": "center"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

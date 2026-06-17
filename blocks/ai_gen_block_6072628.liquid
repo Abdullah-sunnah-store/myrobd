@@ -1,0 +1,349 @@
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-category-menu-{{ ai_gen_id }} {
+    display: block;
+    width: 100%;
+    background-color: {{ block.settings.background_color }};
+    padding: {{ block.settings.padding_top }}px 0 {{ block.settings.padding_bottom }}px 0;
+  }
+
+  .ai-category-menu__container-{{ ai_gen_id }} {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: {{ block.settings.item_gap_desktop }}px;
+    padding: 0 20px;
+  }
+
+  .ai-category-menu__link-{{ ai_gen_id }} {
+    color: {{ block.settings.text_color }};
+    text-decoration: none;
+    font-size: {{ block.settings.font_size }}px;
+    font-weight: {{ block.settings.font_weight }};
+    letter-spacing: {{ block.settings.letter_spacing }}px;
+    transition: color 0.3s ease;
+    white-space: nowrap;
+  }
+
+  .ai-category-menu__link-{{ ai_gen_id }}:hover {
+    color: {{ block.settings.hover_text_color }};
+  }
+
+  @media screen and (max-width: 749px) {
+    .ai-category-menu__container-{{ ai_gen_id }} {
+      flex-wrap: nowrap;
+      justify-content: flex-start;
+      overflow-x: auto;
+      gap: {{ block.settings.item_gap_mobile }}px;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+
+    .ai-category-menu__container-{{ ai_gen_id }}::-webkit-scrollbar {
+      display: none;
+    }
+  }
+{% endstyle %}
+
+<category-menu-{{ ai_gen_id }} class="ai-category-menu-{{ ai_gen_id }}" {{ block.shopify_attributes }}>
+  <nav class="ai-category-menu__container-{{ ai_gen_id }}">
+    {% for i in (1..10) %}
+      {% assign label_key = 'menu_item_' | append: i | append: '_label' %}
+      {% assign link_key = 'menu_item_' | append: i | append: '_link' %}
+      {% assign label = block.settings[label_key] %}
+      {% assign link = block.settings[link_key] %}
+      
+      {% if label != blank %}
+        <a 
+          href="{{ link }}" 
+          class="ai-category-menu__link-{{ ai_gen_id }}"
+        >
+          {{ label }}
+        </a>
+      {% endif %}
+    {% endfor %}
+  </nav>
+</category-menu-{{ ai_gen_id }}>
+
+<script>
+  (function() {
+    class CategoryMenu{{ ai_gen_id }} extends HTMLElement {
+      constructor() {
+        super();
+      }
+
+      connectedCallback() {
+        this.container = this.querySelector('.ai-category-menu__container-{{ ai_gen_id }}');
+      }
+    }
+
+    customElements.define('category-menu-{{ ai_gen_id }}', CategoryMenu{{ ai_gen_id }});
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Category menu",
+  "tag": null,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "hover_text_color",
+      "label": "Hover text",
+      "default": "#f23086"
+    },
+    {
+      "type": "header",
+      "content": "Typography"
+    },
+    {
+      "type": "range",
+      "id": "font_size",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "label": "Font size",
+      "default": 16
+    },
+    {
+      "type": "select",
+      "id": "font_weight",
+      "label": "Font weight",
+      "options": [
+        {
+          "value": "400",
+          "label": "Normal"
+        },
+        {
+          "value": "700",
+          "label": "Bold"
+        }
+      ],
+      "default": "400"
+    },
+    {
+      "type": "range",
+      "id": "letter_spacing",
+      "min": 0,
+      "max": 3,
+      "step": 0.5,
+      "unit": "px",
+      "label": "Letter spacing",
+      "default": 0
+    },
+    {
+      "type": "header",
+      "content": "Spacing"
+    },
+    {
+      "type": "range",
+      "id": "item_gap_desktop",
+      "min": 10,
+      "max": 60,
+      "step": 5,
+      "unit": "px",
+      "label": "Item gap (Desktop)",
+      "default": 30
+    },
+    {
+      "type": "range",
+      "id": "item_gap_mobile",
+      "min": 10,
+      "max": 40,
+      "step": 5,
+      "unit": "px",
+      "label": "Item gap (Mobile)",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "label": "Padding top",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "label": "Padding bottom",
+      "default": 20
+    },
+    {
+      "type": "header",
+      "content": "Menu item 1"
+    },
+    {
+      "type": "text",
+      "id": "menu_item_1_label",
+      "label": "Label",
+      "default": "OFFER ZONE"
+    },
+    {
+      "type": "url",
+      "id": "menu_item_1_link",
+      "label": "Link"
+    },
+    {
+      "type": "header",
+      "content": "Menu item 2"
+    },
+    {
+      "type": "text",
+      "id": "menu_item_2_label",
+      "label": "Label",
+      "default": "Best Seller"
+    },
+    {
+      "type": "url",
+      "id": "menu_item_2_link",
+      "label": "Link"
+    },
+    {
+      "type": "header",
+      "content": "Menu item 3"
+    },
+    {
+      "type": "text",
+      "id": "menu_item_3_label",
+      "label": "Label",
+      "default": "Ghee"
+    },
+    {
+      "type": "url",
+      "id": "menu_item_3_link",
+      "label": "Link"
+    },
+    {
+      "type": "header",
+      "content": "Menu item 4"
+    },
+    {
+      "type": "text",
+      "id": "menu_item_4_label",
+      "label": "Label",
+      "default": "Honey"
+    },
+    {
+      "type": "url",
+      "id": "menu_item_4_link",
+      "label": "Link"
+    },
+    {
+      "type": "header",
+      "content": "Menu item 5"
+    },
+    {
+      "type": "text",
+      "id": "menu_item_5_label",
+      "label": "Label",
+      "default": "Oil"
+    },
+    {
+      "type": "url",
+      "id": "menu_item_5_link",
+      "label": "Link"
+    },
+    {
+      "type": "header",
+      "content": "Menu item 6"
+    },
+    {
+      "type": "text",
+      "id": "menu_item_6_label",
+      "label": "Label"
+    },
+    {
+      "type": "url",
+      "id": "menu_item_6_link",
+      "label": "Link"
+    },
+    {
+      "type": "header",
+      "content": "Menu item 7"
+    },
+    {
+      "type": "text",
+      "id": "menu_item_7_label",
+      "label": "Label"
+    },
+    {
+      "type": "url",
+      "id": "menu_item_7_link",
+      "label": "Link"
+    },
+    {
+      "type": "header",
+      "content": "Menu item 8"
+    },
+    {
+      "type": "text",
+      "id": "menu_item_8_label",
+      "label": "Label"
+    },
+    {
+      "type": "url",
+      "id": "menu_item_8_link",
+      "label": "Link"
+    },
+    {
+      "type": "header",
+      "content": "Menu item 9"
+    },
+    {
+      "type": "text",
+      "id": "menu_item_9_label",
+      "label": "Label"
+    },
+    {
+      "type": "url",
+      "id": "menu_item_9_link",
+      "label": "Link"
+    },
+    {
+      "type": "header",
+      "content": "Menu item 10"
+    },
+    {
+      "type": "text",
+      "id": "menu_item_10_label",
+      "label": "Label"
+    },
+    {
+      "type": "url",
+      "id": "menu_item_10_link",
+      "label": "Link"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Category menu"
+    }
+  ]
+}
+{% endschema %}

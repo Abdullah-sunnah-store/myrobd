@@ -1,0 +1,971 @@
+
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-store-locations-{{ ai_gen_id }} {
+    display: block;
+    width: 100%;
+    padding: {{ block.settings.section_padding }}px 0px;
+    background-color: {{ block.settings.background_color }};
+  }
+
+  .ai-store-locations__heading-{{ ai_gen_id }} {
+    text-align: center;
+    margin-bottom: 40px;
+    font-size: {{ block.settings.heading_size }}px;
+    color: {{ block.settings.heading_color }};
+  }
+
+  .ai-store-locations__grid-{{ ai_gen_id }} {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: {{ block.settings.grid_gap }}px;
+  }
+
+  .ai-store-card-{{ ai_gen_id }} {
+    background-color: {{ block.settings.card_background }};
+    border-radius: {{ block.settings.card_border_radius }}px;
+    box-shadow: 0 {{ block.settings.shadow_vertical }}px {{ block.settings.shadow_blur }}px rgba(0, 0, 0, {{ block.settings.shadow_opacity }});
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .ai-store-card-{{ ai_gen_id }}:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 {{ block.settings.shadow_vertical | plus: 4 }}px {{ block.settings.shadow_blur | plus: 8 }}px rgba(0, 0, 0, {{ block.settings.shadow_opacity | times: 1.5 }});
+  }
+
+  .ai-store-card__image-wrapper-{{ ai_gen_id }} {
+    position: relative;
+    width: 100%;
+    height: {{ block.settings.image_height }}px;
+    overflow: hidden;
+  }
+
+  .ai-store-card__image-{{ ai_gen_id }} {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .ai-store-card__image-placeholder-{{ ai_gen_id }} {
+    width: 100%;
+    height: 100%;
+    background-color: #f4f4f4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .ai-store-card__image-placeholder-{{ ai_gen_id }} svg {
+    width: 100%;
+    height: 100%;
+    max-width: 200px;
+    max-height: 200px;
+  }
+
+  .ai-store-card__badge-{{ ai_gen_id }} {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background-color: {{ block.settings.badge_background }};
+    color: {{ block.settings.badge_text_color }};
+    padding: 6px 12px;
+    border-radius: {{ block.settings.badge_border_radius }}px;
+    font-size: {{ block.settings.badge_font_size }}px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .ai-store-card__content-{{ ai_gen_id }} {
+    padding: {{ block.settings.card_padding }}px;
+  }
+
+  .ai-store-card__name-{{ ai_gen_id }} {
+    font-size: {{ block.settings.store_name_size }}px;
+    font-weight: 700;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    color: {{ block.settings.text_color }};
+    letter-spacing: 0.5px;
+  }
+
+  .ai-store-card__info-{{ ai_gen_id }} {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .ai-store-card__info-item-{{ ai_gen_id }} {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: {{ block.settings.info_font_size }}px;
+    color: {{ block.settings.text_color }};
+  }
+
+  .ai-store-card__icon-{{ ai_gen_id }} {
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+    margin-top: 2px;
+  }
+
+  .ai-store-card__icon-{{ ai_gen_id }} svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  .ai-store-card__address-{{ ai_gen_id }} {
+    color: {{ block.settings.address_color }};
+  }
+
+  .ai-store-card__address-{{ ai_gen_id }} a {
+    color: {{ block.settings.address_color }};
+    text-decoration: none;
+    transition: opacity 0.2s ease;
+  }
+
+  .ai-store-card__address-{{ ai_gen_id }} a:hover {
+    opacity: 0.7;
+  }
+
+  .ai-store-card__phone-{{ ai_gen_id }} a {
+    color: {{ block.settings.text_color }};
+    text-decoration: none;
+    transition: opacity 0.2s ease;
+  }
+
+  .ai-store-card__phone-{{ ai_gen_id }} a:hover {
+    opacity: 0.7;
+  }
+
+  @media screen and (max-width: 989px) {
+    .ai-store-locations__grid-{{ ai_gen_id }} {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media screen and (max-width: 749px) {
+    .ai-store-locations__grid-{{ ai_gen_id }} {
+      grid-template-columns: 1fr;
+    }
+
+    .ai-store-locations__heading-{{ ai_gen_id }} {
+      font-size: {{ block.settings.heading_size | times: 0.7 }}px;
+      margin-bottom: 30px;
+    }
+
+    .ai-store-card__image-wrapper-{{ ai_gen_id }} {
+      height: {{ block.settings.image_height | times: 0.8 }}px;
+    }
+  }
+{% endstyle %}
+
+<store-locations-{{ ai_gen_id }} class="ai-store-locations-{{ ai_gen_id }}" {{ block.shopify_attributes }}>
+  <div class="ai-store-locations__container-{{ ai_gen_id }}">
+    {% if block.settings.heading != blank %}
+      <h2 class="ai-store-locations__heading-{{ ai_gen_id }}">{{ block.settings.heading }}</h2>
+    {% endif %}
+
+    <div class="ai-store-locations__grid-{{ ai_gen_id }}">
+      {% for i in (1..8) %}
+        {% liquid
+          assign store_enabled_key = 'store_' | append: i | append: '_enabled'
+          assign store_image_key = 'store_' | append: i | append: '_image'
+          assign store_name_key = 'store_' | append: i | append: '_name'
+          assign show_badge_key = 'store_' | append: i | append: '_show_badge'
+          assign badge_text_key = 'store_' | append: i | append: '_badge_text'
+          assign address_key = 'store_' | append: i | append: '_address'
+          assign maps_link_key = 'store_' | append: i | append: '_maps_link'
+          assign hours_key = 'store_' | append: i | append: '_hours'
+          assign phone_key = 'store_' | append: i | append: '_phone'
+
+          assign store_enabled = block.settings[store_enabled_key]
+          assign store_image = block.settings[store_image_key]
+          assign store_name = block.settings[store_name_key]
+          assign show_badge = block.settings[show_badge_key]
+          assign badge_text = block.settings[badge_text_key]
+          assign address = block.settings[address_key]
+          assign maps_link = block.settings[maps_link_key]
+          assign hours = block.settings[hours_key]
+          assign phone = block.settings[phone_key]
+        %}
+
+        {% if store_enabled %}
+          <div class="ai-store-card-{{ ai_gen_id }}">
+            <div class="ai-store-card__image-wrapper-{{ ai_gen_id }}">
+              {% if store_image %}
+                <img
+                  src="{{ store_image | image_url: width: 800 }}"
+                  alt="{{ store_name | escape }}"
+                  loading="lazy"
+                  width="800"
+                  height="{{ block.settings.image_height }}"
+                  class="ai-store-card__image-{{ ai_gen_id }}"
+                >
+              {% else %}
+                <div class="ai-store-card__image-placeholder-{{ ai_gen_id }}">
+                  {{ 'image' | placeholder_svg_tag }}
+                </div>
+              {% endif %}
+
+              {% if show_badge and badge_text != blank %}
+                <div class="ai-store-card__badge-{{ ai_gen_id }}">
+                  {{ badge_text }}
+                </div>
+              {% endif %}
+            </div>
+
+            <div class="ai-store-card__content-{{ ai_gen_id }}">
+              {% if store_name != blank %}
+                <h3 class="ai-store-card__name-{{ ai_gen_id }}">{{ store_name }}</h3>
+              {% endif %}
+
+              <div class="ai-store-card__info-{{ ai_gen_id }}">
+                {% if address != blank %}
+                  <div class="ai-store-card__info-item-{{ ai_gen_id }}">
+                    <div class="ai-store-card__icon-{{ ai_gen_id }}">
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="{{ block.settings.address_color }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                        <circle cx="12" cy="10" r="3"></circle>
+                      </svg>
+                    </div>
+                    <div class="ai-store-card__address-{{ ai_gen_id }}">
+                      {% if maps_link != blank %}
+                        <a href="{{ maps_link }}" target="_blank" rel="noopener">
+                          {{ address }}
+                        </a>
+                      {% else %}
+                        {{ address }}
+                      {% endif %}
+                    </div>
+                  </div>
+                {% endif %}
+
+                {% if hours != blank %}
+                  <div class="ai-store-card__info-item-{{ ai_gen_id }}">
+                    <div class="ai-store-card__icon-{{ ai_gen_id }}">
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="{{ block.settings.text_color }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 16 14"></polyline>
+                      </svg>
+                    </div>
+                    <div>{{ hours }}</div>
+                  </div>
+                {% endif %}
+
+                {% if phone != blank %}
+                  <div class="ai-store-card__info-item-{{ ai_gen_id }} ai-store-card__phone-{{ ai_gen_id }}">
+                    <div class="ai-store-card__icon-{{ ai_gen_id }}">
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="{{ block.settings.text_color }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                      </svg>
+                    </div>
+                    <div>
+                      <a href="tel:{{ phone | replace: ' ', '' | replace: '-', '' }}">
+                        {{ phone }}
+                      </a>
+                    </div>
+                  </div>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+</store-locations-{{ ai_gen_id }}>
+
+<script>
+  {% comment %} (function() {
+    class StoreLocations{{ ai_gen_id }} extends HTMLElement {
+      constructor() {
+        super();
+      }
+
+      connectedCallback() {
+        this.initializeCards();
+      }
+
+      initializeCards() {
+        const cards = this.querySelectorAll('.ai-store-card-{{ ai_gen_id }}');
+        cards.forEach((card) => {
+          card.addEventListener('mouseenter', function() {
+            this.style.zIndex = '10';
+          });
+          card.addEventListener('mouseleave', function() {
+            this.style.zIndex = '1';
+          });
+        });
+      }
+    }
+
+    customElements.define('store-locations-{{ ai_gen_id }}', StoreLocations{{ ai_gen_id }});
+  })(); {% endcomment %}
+</script>
+
+{% schema %}
+{
+  "name": "Store locations",
+  "tag": null,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Section"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Our Store Locations"
+    },
+    {
+      "type": "range",
+      "id": "heading_size",
+      "label": "Heading size",
+      "min": 20,
+      "max": 60,
+      "step": 2,
+      "unit": "px",
+      "default": 40
+    },
+    {
+      "type": "color",
+      "id": "heading_color",
+      "label": "Heading color",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "section_padding",
+      "label": "Section padding",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "default": 50
+    },
+    {
+      "type": "header",
+      "content": "Grid layout"
+    },
+    {
+      "type": "range",
+      "id": "grid_gap",
+      "label": "Gap between cards",
+      "min": 10,
+      "max": 50,
+      "step": 5,
+      "unit": "px",
+      "default": 30
+    },
+    {
+      "type": "header",
+      "content": "Card style"
+    },
+    {
+      "type": "color",
+      "id": "card_background",
+      "label": "Card background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "card_border_radius",
+      "label": "Card border radius",
+      "min": 0,
+      "max": 30,
+      "step": 2,
+      "unit": "px",
+      "default": 12
+    },
+    {
+      "type": "range",
+      "id": "card_padding",
+      "label": "Card padding",
+      "min": 10,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "shadow_vertical",
+      "label": "Shadow vertical offset",
+      "min": 0,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "default": 4
+    },
+    {
+      "type": "range",
+      "id": "shadow_blur",
+      "label": "Shadow blur",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "default": 12
+    },
+    {
+      "type": "range",
+      "id": "shadow_opacity",
+      "label": "Shadow opacity",
+      "min": 0,
+      "max": 1,
+      "step": 0.1,
+      "default": 0.1
+    },
+    {
+      "type": "header",
+      "content": "Image"
+    },
+    {
+      "type": "range",
+      "id": "image_height",
+      "label": "Image height",
+      "min": 150,
+      "max": 400,
+      "step": 10,
+      "unit": "px",
+      "default": 250
+    },
+    {
+      "type": "header",
+      "content": "Badge"
+    },
+    {
+      "type": "color",
+      "id": "badge_background",
+      "label": "Badge background",
+      "default": "#f23086"
+    },
+    {
+      "type": "color",
+      "id": "badge_text_color",
+      "label": "Badge text color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "badge_border_radius",
+      "label": "Badge border radius",
+      "min": 0,
+      "max": 20,
+      "step": 2,
+      "unit": "px",
+      "default": 4
+    },
+    {
+      "type": "range",
+      "id": "badge_font_size",
+      "label": "Badge font size",
+      "min": 8,
+      "max": 16,
+      "step": 1,
+      "unit": "px",
+      "default": 11
+    },
+    {
+      "type": "header",
+      "content": "Text"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "address_color",
+      "label": "Address color",
+      "default": "#f23086"
+    },
+    {
+      "type": "range",
+      "id": "store_name_size",
+      "label": "Store name size",
+      "min": 14,
+      "max": 28,
+      "step": 2,
+      "unit": "px",
+      "default": 18
+    },
+    {
+      "type": "range",
+      "id": "info_font_size",
+      "label": "Info font size",
+      "min": 12,
+      "max": 18,
+      "step": 1,
+      "unit": "px",
+      "default": 14
+    },
+    {
+      "type": "header",
+      "content": "Store 1"
+    },
+    {
+      "type": "checkbox",
+      "id": "store_1_enabled",
+      "label": "Enable store 1",
+      "default": true
+    },
+    {
+      "type": "image_picker",
+      "id": "store_1_image",
+      "label": "Image"
+    },
+    {
+      "type": "text",
+      "id": "store_1_name",
+      "label": "Name",
+      "default": "Downtown Store"
+    },
+    {
+      "type": "checkbox",
+      "id": "store_1_show_badge",
+      "label": "Show badge",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "store_1_badge_text",
+      "label": "Badge text",
+      "default": "OUTLET"
+    },
+    {
+      "type": "textarea",
+      "id": "store_1_address",
+      "label": "Address",
+      "default": "123 Main Street, City, State 12345"
+    },
+    {
+      "type": "url",
+      "id": "store_1_maps_link",
+      "label": "Google Maps link"
+    },
+    {
+      "type": "text",
+      "id": "store_1_hours",
+      "label": "Operating hours",
+      "default": "Mon-Fri: 9AM - 6PM"
+    },
+    {
+      "type": "text",
+      "id": "store_1_phone",
+      "label": "Phone number",
+      "default": "+1 (555) 123-4567"
+    },
+    {
+      "type": "header",
+      "content": "Store 2"
+    },
+    {
+      "type": "checkbox",
+      "id": "store_2_enabled",
+      "label": "Enable store 2",
+      "default": true
+    },
+    {
+      "type": "image_picker",
+      "id": "store_2_image",
+      "label": "Image"
+    },
+    {
+      "type": "text",
+      "id": "store_2_name",
+      "label": "Name",
+      "default": "Uptown Store"
+    },
+    {
+      "type": "checkbox",
+      "id": "store_2_show_badge",
+      "label": "Show badge",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "store_2_badge_text",
+      "label": "Badge text",
+      "default": "OUTLET"
+    },
+    {
+      "type": "textarea",
+      "id": "store_2_address",
+      "label": "Address",
+      "default": "456 Oak Avenue, City, State 67890"
+    },
+    {
+      "type": "url",
+      "id": "store_2_maps_link",
+      "label": "Google Maps link"
+    },
+    {
+      "type": "text",
+      "id": "store_2_hours",
+      "label": "Operating hours",
+      "default": "Mon-Sat: 10AM - 8PM"
+    },
+    {
+      "type": "text",
+      "id": "store_2_phone",
+      "label": "Phone number",
+      "default": "+1 (555) 987-6543"
+    },
+    {
+      "type": "header",
+      "content": "Store 3"
+    },
+    {
+      "type": "checkbox",
+      "id": "store_3_enabled",
+      "label": "Enable store 3",
+      "default": true
+    },
+    {
+      "type": "image_picker",
+      "id": "store_3_image",
+      "label": "Image"
+    },
+    {
+      "type": "text",
+      "id": "store_3_name",
+      "label": "Name",
+      "default": "Westside Store"
+    },
+    {
+      "type": "checkbox",
+      "id": "store_3_show_badge",
+      "label": "Show badge",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "store_3_badge_text",
+      "label": "Badge text",
+      "default": "OUTLET"
+    },
+    {
+      "type": "textarea",
+      "id": "store_3_address",
+      "label": "Address",
+      "default": "789 Elm Street, City, State 13579"
+    },
+    {
+      "type": "url",
+      "id": "store_3_maps_link",
+      "label": "Google Maps link"
+    },
+    {
+      "type": "text",
+      "id": "store_3_hours",
+      "label": "Operating hours",
+      "default": "Daily: 9AM - 9PM"
+    },
+    {
+      "type": "text",
+      "id": "store_3_phone",
+      "label": "Phone number",
+      "default": "+1 (555) 246-8135"
+    },
+    {
+      "type": "header",
+      "content": "Store 4"
+    },
+    {
+      "type": "checkbox",
+      "id": "store_4_enabled",
+      "label": "Enable store 4",
+      "default": false
+    },
+    {
+      "type": "image_picker",
+      "id": "store_4_image",
+      "label": "Image"
+    },
+    {
+      "type": "text",
+      "id": "store_4_name",
+      "label": "Name",
+      "default": "Eastside Store"
+    },
+    {
+      "type": "checkbox",
+      "id": "store_4_show_badge",
+      "label": "Show badge",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "store_4_badge_text",
+      "label": "Badge text",
+      "default": "OUTLET"
+    },
+    {
+      "type": "textarea",
+      "id": "store_4_address",
+      "label": "Address",
+      "default": "321 Pine Road, City, State 24680"
+    },
+    {
+      "type": "url",
+      "id": "store_4_maps_link",
+      "label": "Google Maps link"
+    },
+    {
+      "type": "text",
+      "id": "store_4_hours",
+      "label": "Operating hours",
+      "default": "Mon-Sun: 8AM - 10PM"
+    },
+    {
+      "type": "text",
+      "id": "store_4_phone",
+      "label": "Phone number",
+      "default": "+1 (555) 135-7924"
+    },
+    {
+      "type": "header",
+      "content": "Store 5"
+    },
+    {
+      "type": "checkbox",
+      "id": "store_5_enabled",
+      "label": "Enable store 5",
+      "default": false
+    },
+    {
+      "type": "image_picker",
+      "id": "store_5_image",
+      "label": "Image"
+    },
+    {
+      "type": "text",
+      "id": "store_5_name",
+      "label": "Name",
+      "default": "Northside Store"
+    },
+    {
+      "type": "checkbox",
+      "id": "store_5_show_badge",
+      "label": "Show badge",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "store_5_badge_text",
+      "label": "Badge text",
+      "default": "OUTLET"
+    },
+    {
+      "type": "textarea",
+      "id": "store_5_address",
+      "label": "Address",
+      "default": "654 Maple Drive, City, State 97531"
+    },
+    {
+      "type": "url",
+      "id": "store_5_maps_link",
+      "label": "Google Maps link"
+    },
+    {
+      "type": "text",
+      "id": "store_5_hours",
+      "label": "Operating hours",
+      "default": "Tue-Sat: 10AM - 7PM"
+    },
+    {
+      "type": "text",
+      "id": "store_5_phone",
+      "label": "Phone number",
+      "default": "+1 (555) 864-2097"
+    },
+    {
+      "type": "header",
+      "content": "Store 6"
+    },
+    {
+      "type": "checkbox",
+      "id": "store_6_enabled",
+      "label": "Enable store 6",
+      "default": false
+    },
+    {
+      "type": "image_picker",
+      "id": "store_6_image",
+      "label": "Image"
+    },
+    {
+      "type": "text",
+      "id": "store_6_name",
+      "label": "Name",
+      "default": "Southside Store"
+    },
+    {
+      "type": "checkbox",
+      "id": "store_6_show_badge",
+      "label": "Show badge",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "store_6_badge_text",
+      "label": "Badge text",
+      "default": "OUTLET"
+    },
+    {
+      "type": "textarea",
+      "id": "store_6_address",
+      "label": "Address",
+      "default": "987 Cedar Lane, City, State 86420"
+    },
+    {
+      "type": "url",
+      "id": "store_6_maps_link",
+      "label": "Google Maps link"
+    },
+    {
+      "type": "text",
+      "id": "store_6_hours",
+      "label": "Operating hours",
+      "default": "Mon-Fri: 11AM - 7PM"
+    },
+    {
+      "type": "text",
+      "id": "store_6_phone",
+      "label": "Phone number",
+      "default": "+1 (555) 753-9514"
+    },
+    {
+      "type": "header",
+      "content": "Store 7"
+    },
+    {
+      "type": "checkbox",
+      "id": "store_7_enabled",
+      "label": "Enable store 1",
+      "default": true
+    },
+    {
+      "type": "image_picker",
+      "id": "store_7_image",
+      "label": "Image"
+    },
+    {
+      "type": "text",
+      "id": "store_7_name",
+      "label": "Name",
+      "default": "Downtown Store"
+    },
+    {
+      "type": "checkbox",
+      "id": "store_7_show_badge",
+      "label": "Show badge",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "store_7_badge_text",
+      "label": "Badge text",
+      "default": "OUTLET"
+    },
+    {
+      "type": "textarea",
+      "id": "store_7_address",
+      "label": "Address",
+      "default": "123 Main Street, City, State 12345"
+    },
+    {
+      "type": "url",
+      "id": "store_7_maps_link",
+      "label": "Google Maps link"
+    },
+    {
+      "type": "text",
+      "id": "store_7_hours",
+      "label": "Operating hours",
+      "default": "Mon-Fri: 9AM - 6PM"
+    },
+    {
+      "type": "text",
+      "id": "store_7_phone",
+      "label": "Phone number",
+      "default": "+1 (555) 123-4567"
+    },
+    {
+      "type": "header",
+      "content": "Store 8"
+    },
+    {
+      "type": "checkbox",
+      "id": "store_8_enabled",
+      "label": "Enable store 8",
+      "default": true
+    },
+    {
+      "type": "image_picker",
+      "id": "store_8_image",
+      "label": "Image"
+    },
+    {
+      "type": "text",
+      "id": "store_8_name",
+      "label": "Name",
+      "default": "Downtown Store"
+    },
+    {
+      "type": "checkbox",
+      "id": "store_8_show_badge",
+      "label": "Show badge",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "store_8_badge_text",
+      "label": "Badge text",
+      "default": "OUTLET"
+    },
+    {
+      "type": "textarea",
+      "id": "store_8_address",
+      "label": "Address",
+      "default": "123 Main Street, City, State 12345"
+    },
+    {
+      "type": "url",
+      "id": "store_8_maps_link",
+      "label": "Google Maps link"
+    },
+    {
+      "type": "text",
+      "id": "store_8_hours",
+      "label": "Operating hours",
+      "default": "Mon-Fri: 9AM - 6PM"
+    },
+    {
+      "type": "text",
+      "id": "store_8_phone",
+      "label": "Phone number",
+      "default": "+1 (555) 123-4567"
+    },
+  ],
+  "presets": [
+    {
+      "name": "Store locations"
+    }
+  ]
+}
+{% endschema %}

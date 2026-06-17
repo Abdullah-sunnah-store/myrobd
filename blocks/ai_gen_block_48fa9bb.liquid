@@ -1,0 +1,344 @@
+{% doc %}
+  @prompt
+    I would like a price blocks in this blocks  where the product section displays both the price and compare-at price, along with the percentage saved. the vlock name should be "Myro Price"
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-myro-price-{{ ai_gen_id }} {
+    display: block;
+    width: {{ block.settings.desktop_width_percent }}%;
+    max-width: 100%;
+  }
+
+  .ai-myro-price-container-{{ ai_gen_id }} {
+    display: flex;
+    align-items: {{ block.settings.alignment }};
+    gap: {{ block.settings.spacing }}px;
+    flex-wrap: wrap;
+  }
+
+  .ai-myro-price-wrapper-{{ ai_gen_id }} {
+    display: flex;
+    align-items: baseline;
+    gap: {{ block.settings.price_spacing }}px;
+  }
+
+  .ai-myro-current-price-{{ ai_gen_id }} {
+    font-size: {{ block.settings.price_size }}px;
+    font-weight: {{ block.settings.price_weight }};
+    color: {{ block.settings.price_color }};
+    line-height: 1.2;
+  }
+
+  .ai-myro-compare-price-{{ ai_gen_id }} {
+    font-size: {{ block.settings.compare_price_size }}px;
+    color: {{ block.settings.compare_price_color }};
+    text-decoration: line-through;
+    line-height: 1.2;
+  }
+
+  .ai-myro-savings-badge-{{ ai_gen_id }} {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: {{ block.settings.badge_padding_vertical }}px {{ block.settings.badge_padding_horizontal }}px;
+    background-color: {{ block.settings.badge_background }};
+    color: {{ block.settings.badge_text_color }};
+    font-size: {{ block.settings.badge_font_size }}px;
+    font-weight: {{ block.settings.badge_font_weight }};
+    border-radius: {{ block.settings.badge_border_radius }}px;
+    line-height: 1;
+  }
+
+  .ai-myro-price-empty-{{ ai_gen_id }} {
+    color: #999;
+    font-size: 14px;
+    font-style: italic;
+  }
+{% endstyle %}
+
+<div class="ai-myro-price-{{ ai_gen_id }}" {{ block.shopify_attributes }}>
+  {% if product %}
+    {% assign current_variant = product.selected_or_first_available_variant %}
+    {% assign compare_at_price = current_variant.compare_at_price %}
+    {% assign price = current_variant.price %}
+
+    <div class="ai-myro-price-container-{{ ai_gen_id }}">
+      <div class="ai-myro-price-wrapper-{{ ai_gen_id }}">
+        <div class="ai-myro-current-price-{{ ai_gen_id }}">
+          {{ price | money }}
+        </div>
+
+        {% if compare_at_price and compare_at_price > price %}
+          <div class="ai-myro-compare-price-{{ ai_gen_id }}">
+            {{ compare_at_price | money }}
+          </div>
+        {% endif %}
+      </div>
+
+      {% if compare_at_price and compare_at_price > price and block.settings.show_savings %}
+        {% assign savings = compare_at_price | minus: price %}
+        {% assign savings_percent = savings | times: 100.0 | divided_by: compare_at_price | round %}
+
+        <div class="ai-myro-savings-badge-{{ ai_gen_id }}">
+          {% if block.settings.savings_format == 'percentage' %}
+            {{ block.settings.savings_text }} {{ savings_percent }}%
+          {% elsif block.settings.savings_format == 'amount' %}
+            {{ block.settings.savings_text }} {{ savings | money }}
+          {% else %}
+            {{ block.settings.savings_text }} {{ savings_percent }}% ({{ savings | money }})
+          {% endif %}
+        </div>
+      {% endif %}
+    </div>
+  {% else %}
+    <div class="ai-myro-price-empty-{{ ai_gen_id }}">
+      Product price will display here
+    </div>
+  {% endif %}
+</div>
+
+{% schema %}
+{
+  "name": "Myro Price",
+  "tag": null,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "range",
+      "id": "desktop_width_percent",
+      "label": "Desktop width",
+      "min": 50,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "default": 100
+    },
+    {
+      "type": "select",
+      "id": "alignment",
+      "label": "Alignment",
+      "options": [
+        {
+          "value": "flex-start",
+          "label": "Left"
+        },
+        {
+          "value": "center",
+          "label": "Center"
+        },
+        {
+          "value": "flex-end",
+          "label": "Right"
+        }
+      ],
+      "default": "flex-start"
+    },
+    {
+      "type": "range",
+      "id": "spacing",
+      "label": "Spacing between elements",
+      "min": 4,
+      "max": 24,
+      "step": 2,
+      "unit": "px",
+      "default": 12
+    },
+    {
+      "type": "header",
+      "content": "Current price"
+    },
+    {
+      "type": "range",
+      "id": "price_size",
+      "label": "Font size",
+      "min": 14,
+      "max": 48,
+      "step": 2,
+      "unit": "px",
+      "default": 24
+    },
+    {
+      "type": "select",
+      "id": "price_weight",
+      "label": "Font weight",
+      "options": [
+        {
+          "value": "400",
+          "label": "Normal"
+        },
+        {
+          "value": "500",
+          "label": "Medium"
+        },
+        {
+          "value": "600",
+          "label": "Semibold"
+        },
+        {
+          "value": "700",
+          "label": "Bold"
+        }
+      ],
+      "default": "600"
+    },
+    {
+      "type": "color",
+      "id": "price_color",
+      "label": "Color",
+      "default": "#000000"
+    },
+    {
+      "type": "range",
+      "id": "price_spacing",
+      "label": "Spacing to compare price",
+      "min": 4,
+      "max": 20,
+      "step": 2,
+      "unit": "px",
+      "default": 8
+    },
+    {
+      "type": "header",
+      "content": "Compare at price"
+    },
+    {
+      "type": "range",
+      "id": "compare_price_size",
+      "label": "Font size",
+      "min": 12,
+      "max": 32,
+      "step": 2,
+      "unit": "px",
+      "default": 18
+    },
+    {
+      "type": "color",
+      "id": "compare_price_color",
+      "label": "Color",
+      "default": "#999999"
+    },
+    {
+      "type": "header",
+      "content": "Savings badge"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_savings",
+      "label": "Show savings badge",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "savings_format",
+      "label": "Savings format",
+      "options": [
+        {
+          "value": "percentage",
+          "label": "Percentage only"
+        },
+        {
+          "value": "amount",
+          "label": "Amount only"
+        },
+        {
+          "value": "both",
+          "label": "Both"
+        }
+      ],
+      "default": "percentage"
+    },
+    {
+      "type": "text",
+      "id": "savings_text",
+      "label": "Savings text",
+      "default": "Save"
+    },
+    {
+      "type": "range",
+      "id": "badge_font_size",
+      "label": "Font size",
+      "min": 10,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "default": 12
+    },
+    {
+      "type": "select",
+      "id": "badge_font_weight",
+      "label": "Font weight",
+      "options": [
+        {
+          "value": "400",
+          "label": "Normal"
+        },
+        {
+          "value": "500",
+          "label": "Medium"
+        },
+        {
+          "value": "600",
+          "label": "Semibold"
+        },
+        {
+          "value": "700",
+          "label": "Bold"
+        }
+      ],
+      "default": "600"
+    },
+    {
+      "type": "color",
+      "id": "badge_background",
+      "label": "Background color",
+      "default": "#f23086"
+    },
+    {
+      "type": "color",
+      "id": "badge_text_color",
+      "label": "Text color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "badge_padding_vertical",
+      "label": "Vertical padding",
+      "min": 2,
+      "max": 12,
+      "step": 1,
+      "unit": "px",
+      "default": 4
+    },
+    {
+      "type": "range",
+      "id": "badge_padding_horizontal",
+      "label": "Horizontal padding",
+      "min": 4,
+      "max": 20,
+      "step": 2,
+      "unit": "px",
+      "default": 8
+    },
+    {
+      "type": "range",
+      "id": "badge_border_radius",
+      "label": "Border radius",
+      "min": 0,
+      "max": 20,
+      "step": 2,
+      "unit": "px",
+      "default": 4
+    }
+  ],
+  "presets": [
+    {
+      "name": "Myro Price"
+    }
+  ]
+}
+{% endschema %}

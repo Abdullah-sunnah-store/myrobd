@@ -1,0 +1,352 @@
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-footer-{{ ai_gen_id }} {
+    display: block;
+    width: 100%;
+    background-color: {{ block.settings.background_color }};
+    padding: {{ block.settings.padding_top }}px 0 {{ block.settings.padding_bottom }}px;
+  }
+  .ai-footer-grid-{{ ai_gen_id }} {
+    display: grid;
+    /* This creates the 1.5 to 1 ratio across 4 columns */
+    grid-template-columns: 1.5fr 1fr 1fr 1fr;
+    gap: 40px;
+    align-items: stretch; /* Ensures equal height */
+  }
+@media screen and (max-width: 1024px) {
+.ai-footer-grid-{{ ai_gen_id }}{
+grid-template-columns: 1fr 1fr;
+}
+}
+  .ai-footer-column-{{ ai_gen_id }} {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .ai-footer-logo-{{ ai_gen_id }} {
+    width: {{ block.settings.logo_width }}px;
+    height: auto;
+    margin-bottom: 10px;
+  }
+  .payment-footer-logo-{{ ai_gen_id }}{
+    width: 100%;
+    height: auto;
+    margin-bottom: 10px;
+  }
+
+  .ai-footer-brand-heading-{{ ai_gen_id }} {
+    font-size: {{ block.settings.brand_heading_size }}px;
+    font-weight: 700;
+    color: {{ block.settings.text_color }};
+    margin: 0 0 12px 0;
+    line-height: 1.3;
+  }
+
+  .ai-footer-brand-text-{{ ai_gen_id }} {
+    font-size: {{ block.settings.text_size }}px;
+    color: {{ block.settings.text_color }};
+    line-height: 1.6;
+    margin: 0 0 12px 0;
+    text-align:justify;
+  }
+
+  .ai-footer-links-{{ ai_gen_id }} {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .ai-footer-link-{{ ai_gen_id }} {
+    font-size: {{ block.settings.link_size }}px;
+    color: {{ block.settings.text_color }};
+    text-decoration: none;
+    transition: color 0.3s ease;
+  }
+
+  .ai-footer-link-{{ ai_gen_id }}:hover {
+    color: {{ block.settings.accent_color }};
+  }
+
+  .ai-footer-verification-{{ ai_gen_id }} {
+    font-size: {{ block.settings.verification_size }}px;
+    color: {{ block.settings.text_color }};
+    font-weight: 600;
+    margin-bottom: 16px;
+  }
+
+  .ai-footer-payment-header-{{ ai_gen_id }} {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .ai-footer-lock-icon-{{ ai_gen_id }} {
+    width: 20px;
+    height: 20px;
+    color: {{ block.settings.accent_color }};
+  }
+
+  .ai-footer-payment-text-{{ ai_gen_id }} {
+    font-size: {{ block.settings.payment_text_size }}px;
+    color: {{ block.settings.text_color }};
+    font-weight: 600;
+  }
+
+  .ai-footer-payment-icons-{{ ai_gen_id }} {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+  .payment-tab-heading{
+    display:flex;
+    align-items:start;
+    gap:5px;
+  }
+
+  .ai-footer-payment-icon-{{ ai_gen_id }} {
+    background-color: {{ block.settings.icon_background }};
+    border: 1px solid {{ block.settings.icon_border_color }};
+    border-radius: {{ block.settings.icon_border_radius }}px;
+    padding: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 600;
+    color: {{ block.settings.text_color }};
+    text-align: center;
+    min-height: 40px;
+  }
+
+  @media screen and (max-width: 768px) {
+    .ai-footer-grid-{{ ai_gen_id }} {
+      grid-template-columns: 1fr;
+      gap: 32px;
+    }
+
+    .ai-footer-logo-{{ ai_gen_id }} {
+      width: {{ block.settings.logo_width | times: 0.8 }}px;
+    }
+    
+    
+  }
+{% endstyle %}
+
+<ai-footer-{{ ai_gen_id }} class="ai-footer-{{ ai_gen_id }}  color-{{ section.settings.color_scheme }}" {{ block.shopify_attributes }}>
+  <div class="ai-footer-container-{{ ai_gen_id }} 
+  section
+    section--page-width
+    color-scheme-1
+    section-resource-list
+    spacing-style
+    gap-style
+  ">
+    <div class="ai-footer-grid-{{ ai_gen_id }}">
+      <div class="ai-footer-column-{{ ai_gen_id }}">
+        {% if block.settings.logo %}
+          <img
+            src="{{ block.settings.logo | image_url: width: 400 }}"
+            alt="{{ block.settings.logo.alt | default: 'Myro' | escape }}"
+            class="ai-footer-logo-{{ ai_gen_id }}"
+            width="{{ block.settings.logo_width }}"
+            height="auto"
+            loading="lazy"
+          >
+        {% endif %}
+        
+        {% if block.settings.brand_heading != blank %}
+          <h3 class="ai-footer-brand-heading-{{ ai_gen_id }}">{{ block.settings.brand_heading }}</h3>
+        {% endif %}
+        
+        {% if block.settings.brand_paragraph_1 != blank %}
+          <div class="ai-footer-brand-text-{{ ai_gen_id }}">{{ block.settings.brand_paragraph_1 }}</div>
+        {% endif %}
+        
+        {% if block.settings.brand_paragraph_2 != blank %}
+          <div class="ai-footer-brand-text-{{ ai_gen_id }}">{{ block.settings.brand_paragraph_2 }}</div>
+        {% endif %}
+      </div>
+
+      <div class="ai-footer-column-{{ ai_gen_id }}">
+        <h4 class="ai-footer-brand-heading-{{ ai_gen_id }}">{{ block.settings.company_heading }}</h4>
+
+        <ul class="ai-footer-links-{{ ai_gen_id }}">
+          {%- for link in block.settings.company_menu.links -%}
+            <li><a href="{{ link.url }}" class="ai-footer-link-{{ ai_gen_id }}">{{ link.title }}</a></li>
+          {%- endfor -%}
+        </ul>
+
+      </div>
+
+      <div class="ai-footer-column-{{ ai_gen_id }}">
+        <h4 class="ai-footer-brand-heading-{{ ai_gen_id }}">{{ block.settings.company_heading_two }}</h4>
+        <ul class="ai-footer-links-{{ ai_gen_id }}">
+          {%- for link in block.settings.help_menu.links -%}
+            <li><a href="{{ link.url }}" class="ai-footer-link-{{ ai_gen_id }}">{{ link.title }}</a></li>
+          {%- endfor -%}
+        </ul>
+      </div>
+
+      <div class="ai-footer-column-{{ ai_gen_id }}">
+        <div class="payment-tab-heading">
+          <svg class="ai-footer-lock-icon-{{ ai_gen_id }}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+          </svg>
+          <h4 class="ai-footer-brand-heading-{{ ai_gen_id }}">{{ block.settings.payment_heading }}</h4>
+        </div>
+          
+        
+        
+        <div class="ai-footer-payment-card-{{ ai_gen_id }}">
+          {% if block.settings.payment_img %}
+          <img
+            src="{{ block.settings.payment_img | image_url: width: 2000 }}"
+            alt="{{ block.settings.payment_img.alt | default: 'Myro' | escape }}"
+            class="payment-footer-logo-{{ ai_gen_id }}"
+            width="100%"
+            height="auto"
+            loading="lazy"
+          >
+        {% endif %}
+          
+        </div>
+      </div>
+    </div>
+  </div>
+</ai-footer-{{ ai_gen_id }}>
+
+
+
+{% schema %}
+{
+  "name": "Multi-column footer",
+  "tag": null,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "label": "Top padding",
+      "default": 60
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "label": "Bottom padding",
+      "default": 60
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text",
+      "default": "#333333"
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Accent",
+      "default": "#ff6600"
+    },
+    {
+      "type": "header",
+      "content": "Brand story"
+    },
+    {
+      "type": "image_picker",
+      "id": "logo",
+      "label": "Logo"
+    },
+    {
+      "type": "range",
+      "id": "logo_width",
+      "min": 80,
+      "max": 300,
+      "step": 10,
+      "unit": "px",
+      "label": "Logo width",
+      "default": 180
+    },
+    {
+      "type": "text",
+      "id": "brand_heading",
+      "label": "Heading",
+      "default": "Ghorer Bazar: Your Trusted Source for Safe & Organic Food"
+    },
+    {
+      "type": "range",
+      "id": "brand_heading_size",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "label": "Heading size",
+      "default": 16
+    },
+    {
+      "type": "textarea",
+      "id": "brand_paragraph_1",
+      "label": "First paragraph",
+      "default": "We are committed to providing you with the highest quality organic and healthy food products. Our mission is to make safe, nutritious food accessible to everyone."
+    },
+    {
+      "type": "textarea",
+      "id": "brand_paragraph_2",
+      "label": "Second paragraph",
+      "default": "Every product is carefully selected and verified to meet our strict quality standards, ensuring your family gets only the best."
+    },
+    { "type": "header", "content": "Navigation Menus" },
+    { "type": "text", "id": "company_heading", "label": "Menu 1 Title", "default": "COMPANY" },
+    { "type": "text", "id": "company_heading_two", "label": "Menu 1 Title", "default": "Quick Help" },
+    { "type": "link_list", "id": "company_menu", "label": "Select Menu 1", "default": "footer" },
+    { "type": "link_list", "id": "help_menu", "label": "Select Menu 2", "default": "footer" }, 
+    {
+      "type": "header",
+      "content": "Verification & payments"
+    },
+    {
+      "type": "text",
+      "id": "payment_heading",
+      "label": "Payment heading",
+      "default": "All secure payment methods"
+    },
+    {
+      "type": "image_picker",
+      "id": "payment_img",
+      "label": "Payment Image"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Multi-column footer"
+    }
+  ]
+}
+{% endschema %}
